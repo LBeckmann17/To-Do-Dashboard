@@ -1,90 +1,99 @@
-import { useEffect, useState } from "react";
-import AddTodo from "./components/AddTodo";
-import TodoList from "./components/TodoList";
+import { useState } from 'react'
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
+import Sidebar from './components/Sidebar/Sidebar'
+import Header from './components/Header/Header'
+import ClaudePanel from './components/ClaudePanel/ClaudePanel'
+import Dashboard from './pages/Dashboard'
+import WorkList from './pages/WorkList'
+import PrivateList from './pages/PrivateList'
+import CleaningPlan from './pages/CleaningPlan'
+import ShoppingList from './pages/ShoppingList'
+import CalendarView from './pages/CalendarView'
+import ClaudeChat from './pages/ClaudeChat'
+import { useTheme } from './hooks/useTheme'
+import Icon from './components/Icon'
 
-const API = "/todos";
+const MOBILE_TABS = [
+  { to: '/',         icon: 'LayoutDashboard', label: 'Start' },
+  { to: '/work',     icon: 'Briefcase',       label: 'Arbeit',  color: '#3b82f6' },
+  null, // FAB placeholder
+  { to: '/shopping', icon: 'ShoppingCart',    label: 'Einkauf', color: '#f97316' },
+  { to: '/chat',     icon: 'MessageSquare',   label: 'Claude' },
+]
 
 export default function App() {
-  const [todos, setTodos] = useState([]);
-  const [filter, setFilter] = useState("all");
-  const [error, setError] = useState(null);
+  const { theme, toggle } = useTheme()
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [assistantOpen, setAssistantOpen] = useState(true)
+  const location = useLocation()
+  const navigate = useNavigate()
 
-  useEffect(() => {
-    fetchTodos();
-  }, []);
-
-  async function fetchTodos() {
-    try {
-      const res = await fetch(API);
-      if (!res.ok) throw new Error("Fehler beim Laden");
-      setTodos(await res.json());
-    } catch (e) {
-      setError(e.message);
-    }
-  }
-
-  async function handleAdd(data) {
-    const res = await fetch(API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (res.ok) setTodos([await res.json(), ...todos]);
-  }
-
-  async function handleToggle(id, completed) {
-    const res = await fetch(`${API}/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completed }),
-    });
-    if (res.ok) {
-      const updated = await res.json();
-      setTodos(todos.map((t) => (t.id === id ? updated : t)));
-    }
-  }
-
-  async function handleDelete(id) {
-    const res = await fetch(`${API}/${id}`, { method: "DELETE" });
-    if (res.ok) setTodos(todos.filter((t) => t.id !== id));
-  }
-
-  const filtered = todos.filter((t) => {
-    if (filter === "open") return !t.completed;
-    if (filter === "done") return t.completed;
-    return true;
-  });
-
-  const openCount = todos.filter((t) => !t.completed).length;
+  const isChatPage = location.pathname === '/chat'
 
   return (
-    <div className="app">
-      <header>
-        <h1>To-Do Dashboard</h1>
-        <span className="badge">{openCount} offen</span>
-      </header>
+    <div className="shell">
+      <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(v => !v)} />
 
-      {error && <p className="error">{error}</p>}
+      <div className="main">
+        <Header
+          theme={theme}
+          onThemeToggle={toggle}
+          onAssistantToggle={() => setAssistantOpen(v => !v)}
+          assistantOpen={assistantOpen}
+        />
+        <div className="content">
+          <Routes>
+            <Route path="/"         element={<Dashboard />} />
+            <Route path="/work"     element={<WorkList />} />
+            <Route path="/private"  element={<PrivateList />} />
+            <Route path="/cleaning" element={<CleaningPlan />} />
+            <Route path="/shopping" element={<ShoppingList />} />
+            <Route path="/calendar" element={<CalendarView />} />
+            <Route path="/chat"     element={<ClaudeChat />} />
+          </Routes>
 
-      <AddTodo onAdd={handleAdd} />
-
-      <div className="filter-bar">
-        {["all", "open", "done"].map((f) => (
-          <button
-            key={f}
-            className={filter === f ? "active" : ""}
-            onClick={() => setFilter(f)}
-          >
-            {f === "all" ? "Alle" : f === "open" ? "Offen" : "Erledigt"}
-          </button>
-        ))}
+          {!isChatPage && (
+            <>
+              <ClaudePanel open={assistantOpen} onClose={() => setAssistantOpen(false)} />
+              {!assistantOpen && (
+                <button
+                  className="asst-reopen"
+                  onClick={() => setAssistantOpen(true)}
+                  title="Claude öffnen"
+                >
+                  <Icon name="Bot" size={22} />
+                </button>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
-      <TodoList
-        todos={filtered}
-        onToggle={handleToggle}
-        onDelete={handleDelete}
-      />
+      <nav className="mobile-tabbar">
+        {MOBILE_TABS.map((tab, i) => {
+          if (tab === null) {
+            return (
+              <div key="fab" className="m-fab-wrap">
+                <button className="m-fab" onClick={() => navigate(location.pathname)}>
+                  <Icon name="Plus" size={22} />
+                </button>
+              </div>
+            )
+          }
+          const active = location.pathname === tab.to
+          return (
+            <button
+              key={tab.to}
+              className={`m-tab${active ? ' on' : ''}`}
+              onClick={() => navigate(tab.to)}
+              style={active && tab.color ? { color: tab.color } : {}}
+            >
+              <Icon name={tab.icon} size={22} />
+              {tab.label}
+            </button>
+          )
+        })}
+      </nav>
     </div>
-  );
+  )
 }

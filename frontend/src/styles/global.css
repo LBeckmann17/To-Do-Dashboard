@@ -547,6 +547,7 @@ html[data-theme="dark"] .theme-toggle .knob { transform: translateX(26px); color
   .cal-main { padding: 0 16px 80px; }
   .assistant { display: none; }
   .asst-reopen { display: none; }
+  .cart-leeren-label { display: none; }
   .mobile-tabbar {
     display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
     background: var(--surface); border-top: 1px solid var(--border);

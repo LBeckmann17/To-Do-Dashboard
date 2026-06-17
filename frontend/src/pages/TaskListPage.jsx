@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTasks } from '../context/TasksContext'
 import { PRIO_ORDER, PRIO_API_TO_KEY } from '../utils/constants'
 import TaskCard from '../components/TaskCard/TaskCard'
@@ -24,6 +24,12 @@ export default function TaskListPage({ list }) {
   const [filter, setFilter] = useState('open')
   const [sort, setSort] = useState('priority')
   const [addingTask, setAddingTask] = useState(false)
+
+  useEffect(() => {
+    const handler = () => setAddingTask(true)
+    window.addEventListener('fab-click', handler)
+    return () => window.removeEventListener('fab-click', handler)
+  }, [])
 
   const listTasks = tasks.filter(t => t.list_type === list.api)
 

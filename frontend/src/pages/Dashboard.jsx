@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTasks } from '../context/TasksContext'
 import { LISTS, PRIO_ORDER, PRIO_API_TO_KEY } from '../utils/constants'
@@ -10,6 +10,12 @@ export default function Dashboard() {
   const { tasks, loading } = useTasks()
   const [addingTask, setAddingTask] = useState(false)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const handler = () => setAddingTask(true)
+    window.addEventListener('fab-click', handler)
+    return () => window.removeEventListener('fab-click', handler)
+  }, [])
 
   const openTasks = tasks.filter(t => !t.is_completed)
   const overdueTasks = openTasks.filter(t => t.deadline && new Date(t.deadline) < new Date())

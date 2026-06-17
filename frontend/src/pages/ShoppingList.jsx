@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useShopping } from '../context/ShoppingContext'
 import { SHOP_CATS } from '../utils/constants'
 import Icon from '../components/Icon'
@@ -8,6 +8,13 @@ export default function ShoppingList() {
   const [newName, setNewName] = useState('')
   const [collapsedCats, setCollapsedCats] = useState({})
   const [cartOpen, setCartOpen] = useState(true)
+  const inputRef = useRef(null)
+
+  useEffect(() => {
+    const handler = () => inputRef.current?.focus()
+    window.addEventListener('fab-click', handler)
+    return () => window.removeEventListener('fab-click', handler)
+  }, [])
 
   async function handleAdd(e) {
     e.preventDefault()
@@ -42,6 +49,7 @@ export default function ShoppingList() {
           <div className="shop-add">
             <Icon name="Plus" size={16} />
             <input
+              ref={inputRef}
               value={newName}
               onChange={e => setNewName(e.target.value)}
               placeholder="Produkt hinzufügen…"
@@ -118,7 +126,7 @@ export default function ShoppingList() {
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 <Icon name="Trash2" size={13} />
-                Leeren
+                <span className="cart-leeren-label">Leeren</span>
               </button>
 
               <span className="cat-chev" style={{ marginLeft: 8 }} onClick={() => setCartOpen(o => !o)}>

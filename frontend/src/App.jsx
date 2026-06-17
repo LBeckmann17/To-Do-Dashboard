@@ -15,7 +15,7 @@ import Icon from './components/Icon'
 
 const MOBILE_TABS = [
   { to: '/',         icon: 'LayoutDashboard', label: 'Start' },
-  { to: '/work',     icon: 'Briefcase',       label: 'Arbeit',  color: '#3b82f6' },
+  { to: '/private',  icon: 'User',            label: 'Privat',  color: '#8b5cf6' },
   null, // FAB placeholder
   { to: '/shopping', icon: 'ShoppingCart',    label: 'Einkauf', color: '#f97316' },
   { to: '/chat',     icon: 'MessageSquare',   label: 'Claude' },
@@ -74,7 +74,7 @@ export default function App() {
           if (tab === null) {
             return (
               <div key="fab" className="m-fab-wrap">
-                <button className="m-fab" onClick={() => navigate(location.pathname)}>
+                <button className="m-fab" onClick={() => window.dispatchEvent(new CustomEvent('fab-click'))}>
                   <Icon name="Plus" size={22} />
                 </button>
               </div>

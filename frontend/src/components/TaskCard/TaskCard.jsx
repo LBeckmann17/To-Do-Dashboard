@@ -9,6 +9,27 @@ const LIST_COLORS = { work: '#3b82f6', private: '#8b5cf6', cleaning: '#10b981', 
 const LIST_LABELS = { work: 'Arbeit', private: 'Privat', cleaning: 'Putzen', shopping: 'Einkauf' }
 const PRIO_CLASS = { urgent: 'urgent', high: 'high', medium: 'med', low: 'low' }
 
+const DURATION_OPTS = [
+  { value: '',    label: 'Dauer' },
+  { value: '15',  label: '15 Min' },
+  { value: '30',  label: '30 Min' },
+  { value: '45',  label: '45 Min' },
+  { value: '60',  label: '1h' },
+  { value: '90',  label: '1h 30Min' },
+  { value: '120', label: '2h' },
+  { value: '180', label: '3h' },
+  { value: '240', label: '4h' },
+  { value: '480', label: '8h' },
+]
+
+function formatDuration(minutes) {
+  if (!minutes) return null
+  if (minutes < 60) return `${minutes} Min`
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  return m ? `${h}h ${m}Min` : `${h}h`
+}
+
 export default function TaskCard({ task, showList = false }) {
   const { toggleTask, toggleSubtask, addSubtask, deleteTask, updateTask } = useTasks()
   const [open, setOpen] = useState(false)
@@ -55,7 +76,8 @@ export default function TaskCard({ task, showList = false }) {
       title: task.title,
       priority: task.priority,
       deadline: task.deadline ? task.deadline.slice(0, 10) : '',
-      description: task.description || '',
+      duration_minutes: task.duration_minutes ? String(task.duration_minutes) : '',
+      description: task.notes || '',
     })
     setEditing(true)
     setOpen(true)
@@ -67,7 +89,8 @@ export default function TaskCard({ task, showList = false }) {
       title: editData.title.trim(),
       priority: editData.priority,
       deadline: editData.deadline || null,
-      description: editData.description || null,
+      duration_minutes: editData.duration_minutes ? parseInt(editData.duration_minutes) : null,
+      notes: editData.description || null,
     })
     setEditing(false)
   }
@@ -125,6 +148,12 @@ export default function TaskCard({ task, showList = false }) {
                 {deadlineLabel}
               </span>
             )}
+            {task.duration_minutes && (
+              <span className="meta-badge">
+                <Icon name="Timer" size={13} />
+                {formatDuration(task.duration_minutes)}
+              </span>
+            )}
             {totalSubs > 0 && (
               <span className="meta-badge">
                 <Icon name="Check" size={13} />
@@ -161,7 +190,7 @@ export default function TaskCard({ task, showList = false }) {
                 </div>
 
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <div style={{ flex: '1 1 120px' }}>
+                  <div style={{ flex: '1 1 110px' }}>
                     <div className="detail-label">Priorität</div>
                     <select className="task-form-select" style={{ width: '100%' }} value={editData.priority} onChange={set('priority')}>
                       <option value="urgent">Kritisch</option>
@@ -170,7 +199,7 @@ export default function TaskCard({ task, showList = false }) {
                       <option value="low">Niedrig</option>
                     </select>
                   </div>
-                  <div style={{ flex: '1 1 140px' }}>
+                  <div style={{ flex: '1 1 130px' }}>
                     <div className="detail-label">Fälligkeit</div>
                     <input
                       type="date"
@@ -179,6 +208,14 @@ export default function TaskCard({ task, showList = false }) {
                       value={editData.deadline}
                       onChange={set('deadline')}
                     />
+                  </div>
+                  <div style={{ flex: '1 1 100px' }}>
+                    <div className="detail-label">Dauer</div>
+                    <select className="task-form-select" style={{ width: '100%' }} value={editData.duration_minutes} onChange={set('duration_minutes')}>
+                      {DURATION_OPTS.map(o => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 

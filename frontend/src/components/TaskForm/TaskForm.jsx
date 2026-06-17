@@ -3,13 +3,29 @@ import { useTasks } from '../../context/TasksContext'
 import { LISTS, PRIO_KEY_TO_API, LIST_KEY_TO_API } from '../../utils/constants'
 import Icon from '../Icon'
 
+const DURATION_OPTS = [
+  { value: '',    label: 'Dauer' },
+  { value: '15',  label: '15 Min' },
+  { value: '30',  label: '30 Min' },
+  { value: '45',  label: '45 Min' },
+  { value: '60',  label: '1h' },
+  { value: '90',  label: '1h 30Min' },
+  { value: '120', label: '2h' },
+  { value: '180', label: '3h' },
+  { value: '240', label: '4h' },
+  { value: '480', label: '8h' },
+]
+
 export default function TaskForm({ listKey, onClose }) {
   const { addTask } = useTasks()
   const [title, setTitle] = useState('')
   const [priority, setPriority] = useState('med')
   const [deadline, setDeadline] = useState('')
+  const [duration, setDuration] = useState('')
   const [description, setDescription] = useState('')
   const [list, setList] = useState(listKey || 'work')
+
+  const isShoppingList = (listKey || list) === 'shop'
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -19,7 +35,8 @@ export default function TaskForm({ listKey, onClose }) {
       list_type: LIST_KEY_TO_API[list],
       priority: PRIO_KEY_TO_API[priority],
       deadline: deadline || null,
-      description: description || null,
+      duration_minutes: duration ? parseInt(duration) : null,
+      notes: description || null,
     })
     onClose()
   }
@@ -52,6 +69,13 @@ export default function TaskForm({ listKey, onClose }) {
           onChange={e => setDeadline(e.target.value)}
           style={{ fontFamily: 'var(--sans)' }}
         />
+        {!isShoppingList && (
+          <select className="task-form-select" value={duration} onChange={e => setDuration(e.target.value)}>
+            {DURATION_OPTS.map(o => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        )}
       </div>
       <input
         className="task-form-input"

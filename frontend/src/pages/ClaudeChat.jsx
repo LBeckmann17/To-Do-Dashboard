@@ -21,6 +21,14 @@ export default function ClaudeChat() {
   const [contextEnabled, setContextEnabled] = useState({ work: true, private: true, cleaning: true, shopping: false })
   const [input, setInput] = useState('')
   const threadRef = useRef(null)
+  const textareaRef = useRef(null)
+
+  useEffect(() => {
+    const ta = textareaRef.current
+    if (!ta) return
+    ta.style.height = 'auto'
+    ta.style.height = Math.min(ta.scrollHeight, 150) + 'px'
+  }, [input])
 
   const allEnabled = Object.values(contextEnabled).some(v => v)
   const filteredTasks = allEnabled
@@ -112,11 +120,13 @@ export default function ClaudeChat() {
             </div>
             <div className="input-box">
               <textarea
-                rows={2}
+                ref={textareaRef}
+                rows={1}
                 placeholder="Nachricht an Claude…"
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKey}
+                style={{ overflow: 'hidden' }}
               />
               <button className="send-btn" onClick={handleSend} disabled={!input.trim() || loading}>
                 <Icon name="Send" size={15} />

@@ -548,6 +548,8 @@ html[data-theme="dark"] .theme-toggle .knob { transform: translateX(26px); color
   .assistant { display: none; }
   .asst-reopen { display: none; }
   .cart-leeren-label { display: none; }
+  .view-btn-label { display: none; }
+  .cf-composer { padding-bottom: calc(16px + 72px); }
   .mobile-tabbar {
     display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
     background: var(--surface); border-top: 1px solid var(--border);

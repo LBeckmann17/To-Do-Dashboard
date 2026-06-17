@@ -75,7 +75,7 @@ export default function TaskListPage({ list }) {
               style={{ background: list.color }}
               onClick={() => setAddingTask(v => !v)}
             >
-              <Icon name="Plus" size={15} /> Aufgabe
+              <Icon name="Plus" size={15} /><span className="view-btn-label"> Aufgabe</span>
             </button>
           </div>
         </div>

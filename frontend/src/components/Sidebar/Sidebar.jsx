@@ -24,10 +24,19 @@ export default function Sidebar({ collapsed, onToggle }) {
           <Icon name="Check" size={15} />
         </div>
         <span className="brand-name">Tasker</span>
-        <button className="side-collapse icon-btn" onClick={onToggle} title="Seitenleiste einklappen">
-          <Icon name={collapsed ? 'ChevronRight' : 'ChevronLeft'} size={16} />
-        </button>
       </div>
+
+      {/* Toggle-Button immer sichtbar, als erstes Nav-Element */}
+      <button
+        className="nav-item side-toggle"
+        onClick={onToggle}
+        title={collapsed ? 'Seitenleiste ausklappen' : 'Seitenleiste einklappen'}
+      >
+        <span className="nav-ic">
+          <Icon name={collapsed ? 'ChevronRight' : 'ChevronLeft'} size={17} />
+        </span>
+        <span className="nav-label">{collapsed ? 'Ausklappen' : 'Einklappen'}</span>
+      </button>
 
       {NAV_MAIN.map(item => (
         <NavLink

@@ -4,9 +4,10 @@ import { SHOP_CATS } from '../utils/constants'
 import Icon from '../components/Icon'
 
 export default function ShoppingList() {
-  const { items, total, addItem, toggleItem, updateItem, deleteCompleted, loading } = useShopping()
+  const { items, addItem, toggleItem, updateItem, deleteCompleted, loading } = useShopping()
   const [newName, setNewName] = useState('')
   const [collapsedCats, setCollapsedCats] = useState({})
+  const [cartOpen, setCartOpen] = useState(true)
 
   async function handleAdd(e) {
     e.preventDefault()
@@ -19,9 +20,10 @@ export default function ShoppingList() {
     setCollapsedCats(prev => ({ ...prev, [key]: !prev[key] }))
   }
 
-  const doneItems = items.filter(i => i.is_completed)
-  const totalOpen = items.filter(i => !i.is_completed).length
-  const totalDone = doneItems.length
+  const openItems = items.filter(i => !i.is_completed)
+  const cartItems = items.filter(i => i.is_completed)
+  const cartTotal = cartItems.reduce((s, i) => s + (i.estimated_price || 0), 0)
+  const listTotal = openItems.reduce((s, i) => s + (i.estimated_price || 0), 0)
 
   return (
     <div className="view" style={{ display: 'flex', flexDirection: 'column' }}>
@@ -30,7 +32,7 @@ export default function ShoppingList() {
           <div className="view-dot" style={{ background: '#f97316' }} />
           <h1 className="view-title">Einkaufsliste</h1>
           <span style={{ marginLeft: 10, fontSize: 13, color: 'var(--text-2)', background: 'var(--hover)', borderRadius: 99, padding: '3px 10px' }}>
-            {totalOpen} offen
+            {openItems.length} offen
           </span>
         </div>
       </div>
@@ -47,7 +49,7 @@ export default function ShoppingList() {
             />
             {newName && (
               <span className="hint">
-                <kbd>↵</kbd> um hinzuzufügen · wird automatisch kategorisiert
+                <kbd>↵</kbd> hinzufügen · wird automatisch kategorisiert
               </span>
             )}
           </div>
@@ -57,8 +59,9 @@ export default function ShoppingList() {
           <div className="loading-state"><Icon name="Loader2" size={18} /> Lade…</div>
         )}
 
+        {/* Offene Kategorien */}
         {SHOP_CATS.map(cat => {
-          const catItems = items.filter(i => i.category === cat.api && !i.is_completed)
+          const catItems = openItems.filter(i => i.category === cat.api)
           if (catItems.length === 0) return null
           const closed = collapsedCats[cat.key]
           const sub = catItems.reduce((s, i) => s + (i.estimated_price || 0), 0)
@@ -83,24 +86,49 @@ export default function ShoppingList() {
           )
         })}
 
-        {doneItems.length > 0 && (
-          <div className="cat done-section" style={{ marginTop: 16 }}>
-            <button className="cat-head" onClick={() => toggleCat('_done')}>
-              <div className="cat-emoji">✅</div>
-              <span className="cat-name">Erledigt</span>
-              <span className="cat-count">{doneItems.length}</span>
+        {/* Einkaufswagen */}
+        {cartItems.length > 0 && (
+          <div className={`cat${cartOpen ? '' : ' closed'}`} style={{ marginTop: 20, borderColor: 'var(--shop)' }}>
+            <div className="cat-head" style={{ cursor: 'default' }}>
+              {/* Titel + Toggle */}
               <button
-                className="clear-done-btn"
-                style={{ marginLeft: 'auto', marginRight: 8 }}
-                onClick={e => { e.stopPropagation(); deleteCompleted() }}
+                style={{ display: 'flex', alignItems: 'center', gap: 12, flex: '1 1 auto', background: 'none', cursor: 'pointer' }}
+                onClick={() => setCartOpen(o => !o)}
               >
-                Löschen
+                <div className="cat-emoji" style={{ background: 'var(--shop-soft)', fontSize: 17 }}>🛒</div>
+                <span className="cat-name">Einkaufswagen</span>
+                <span className="cat-count">{cartItems.length}</span>
+                {cartTotal > 0 && (
+                  <span className="cat-sub" style={{ color: 'var(--shop)', fontWeight: 600 }}>
+                    {cartTotal.toFixed(2)} €
+                  </span>
+                )}
               </button>
-              <span className="cat-chev"><Icon name="ChevronDown" size={15} /></span>
-            </button>
+
+              {/* Leeren-Button */}
+              <button
+                onClick={deleteCompleted}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  fontSize: 12.5, fontWeight: 600, color: 'var(--p-urgent)',
+                  border: '1px solid var(--p-urgent)', borderRadius: 99,
+                  padding: '5px 12px', transition: 'background .14s', flexShrink: 0,
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--p-urgent-bg)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <Icon name="Trash2" size={13} />
+                Leeren
+              </button>
+
+              <span className="cat-chev" style={{ marginLeft: 8 }} onClick={() => setCartOpen(o => !o)}>
+                <Icon name="ChevronDown" size={15} />
+              </span>
+            </div>
+
             <div className="cat-items-wrap">
               <div className="cat-items-inner">
-                {doneItems.map(item => (
+                {cartItems.map(item => (
                   <ShopItem key={item.id} item={item} onToggle={toggleItem} onUpdate={updateItem} />
                 ))}
               </div>
@@ -109,12 +137,18 @@ export default function ShoppingList() {
         )}
       </div>
 
+      {/* Gesamtleiste */}
       <div className="shop-total-bar">
         <span className="shop-total-label">
-          <b>{totalDone}</b> von {totalOpen + totalDone} erledigt
+          <b>{openItems.length}</b> offen
+          {listTotal > 0 && <span style={{ color: 'var(--text-3)', marginLeft: 6 }}>· ~{listTotal.toFixed(2)} €</span>}
         </span>
-        <span className="shop-cart-count">{totalOpen} im Wagen</span>
-        <span className="shop-total-amt">{(total.total_price || 0).toFixed(2)} €</span>
+        {cartItems.length > 0 && (
+          <span className="shop-cart-count">
+            🛒 {cartItems.length}
+          </span>
+        )}
+        <span className="shop-total-amt">{cartTotal.toFixed(2)} €</span>
       </div>
     </div>
   )
@@ -124,7 +158,6 @@ function ShopItem({ item, onToggle, onUpdate }) {
   const [editPrice, setEditPrice] = useState(item.estimated_price ?? '')
   const [focused, setFocused] = useState(false)
 
-  // Sync wenn der Preis von außen aktualisiert wird
   useEffect(() => {
     if (!focused) {
       setEditPrice(item.estimated_price ?? '')

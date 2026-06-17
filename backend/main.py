@@ -17,15 +17,14 @@ async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         # One-time migration: convert category column from native Postgres enum
         # to VARCHAR so new categories can be added without ALTER TYPE.
-        # Only runs when shopping_items exists but price_memory doesn't yet.
-        shopping_exists = (
-            await conn.execute(text("SELECT to_regclass('public.shopping_items')"))
-        ).scalar()
-        price_memory_exists = (
-            await conn.execute(text("SELECT to_regclass('public.price_memory')"))
-        ).scalar()
+        # Runs whenever the column type is still USER-DEFINED (native enum).
+        col_type = (await conn.execute(text("""
+            SELECT data_type
+            FROM information_schema.columns
+            WHERE table_name = 'shopping_items' AND column_name = 'category'
+        """))).scalar()
 
-        if shopping_exists and not price_memory_exists:
+        if col_type == "USER-DEFINED":
             await conn.execute(text(
                 "ALTER TABLE shopping_items "
                 "ALTER COLUMN category TYPE VARCHAR(50) USING category::text"

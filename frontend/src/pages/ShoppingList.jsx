@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useShopping } from '../context/ShoppingContext'
 import { SHOP_CATS } from '../utils/constants'
 import Icon from '../components/Icon'
@@ -122,11 +122,22 @@ export default function ShoppingList() {
 
 function ShopItem({ item, onToggle, onUpdate }) {
   const [editPrice, setEditPrice] = useState(item.estimated_price ?? '')
+  const [focused, setFocused] = useState(false)
 
-  function handlePriceBlur() {
-    const v = parseFloat(String(editPrice).replace(',', '.'))
-    if (!isNaN(v) && v !== item.estimated_price) {
-      onUpdate(item.id, { estimated_price: v })
+  // Sync wenn der Preis von außen aktualisiert wird
+  useEffect(() => {
+    if (!focused) {
+      setEditPrice(item.estimated_price ?? '')
+    }
+  }, [item.estimated_price, focused])
+
+  async function handlePriceBlur() {
+    setFocused(false)
+    const raw = String(editPrice).trim().replace(',', '.')
+    if (raw === '' || raw === String(item.estimated_price ?? '')) return
+    const v = parseFloat(raw)
+    if (!isNaN(v)) {
+      await onUpdate(item.id, { estimated_price: v })
     }
   }
 
@@ -141,16 +152,27 @@ function ShopItem({ item, onToggle, onUpdate }) {
         <svg viewBox="0 0 16 16"><path d="M2.5 8.5L6.5 12L13.5 4" /></svg>
       </div>
       <span className="shop-name">{item.name}</span>
-      <input
-        className="shop-price-input"
-        value={editPrice}
-        onChange={e => setEditPrice(e.target.value)}
-        onBlur={handlePriceBlur}
-        placeholder="0.00"
-        type="text"
-        inputMode="decimal"
-      />
-      <span style={{ fontSize: 12, color: 'var(--text-3)' }}>€</span>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 3,
+        background: focused ? 'var(--surface)' : 'var(--hover)',
+        border: `1px solid ${focused ? 'var(--border-2)' : 'transparent'}`,
+        borderRadius: 7, padding: '3px 8px', transition: 'all .15s',
+      }}>
+        <input
+          className="shop-price-input"
+          value={editPrice}
+          onChange={e => setEditPrice(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={handlePriceBlur}
+          onKeyDown={e => e.key === 'Enter' && e.target.blur()}
+          placeholder="0.00"
+          type="text"
+          inputMode="decimal"
+          style={{ width: 52 }}
+          title="Preis bearbeiten"
+        />
+        <span style={{ fontSize: 12, color: 'var(--text-3)' }}>€</span>
+      </div>
     </div>
   )
 }

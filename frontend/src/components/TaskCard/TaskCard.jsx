@@ -11,6 +11,9 @@ const PRIO_CLASS = { urgent: 'urgent', high: 'high', medium: 'med', low: 'low' }
 
 const DURATION_OPTS = [
   { value: '',    label: 'Dauer' },
+  { value: '2',   label: '< 5 Min' },
+  { value: '5',   label: '5 Min' },
+  { value: '10',  label: '10 Min' },
   { value: '15',  label: '15 Min' },
   { value: '30',  label: '30 Min' },
   { value: '45',  label: '45 Min' },
@@ -24,6 +27,7 @@ const DURATION_OPTS = [
 
 function formatDuration(minutes) {
   if (!minutes) return null
+  if (minutes === 2) return '< 5 Min'
   if (minutes < 60) return `${minutes} Min`
   const h = Math.floor(minutes / 60)
   const m = minutes % 60

@@ -5,6 +5,9 @@ import Icon from '../Icon'
 
 const DURATION_OPTS = [
   { value: '',    label: 'Dauer' },
+  { value: '2',   label: '< 5 Min' },
+  { value: '5',   label: '5 Min' },
+  { value: '10',  label: '10 Min' },
   { value: '15',  label: '15 Min' },
   { value: '30',  label: '30 Min' },
   { value: '45',  label: '45 Min' },

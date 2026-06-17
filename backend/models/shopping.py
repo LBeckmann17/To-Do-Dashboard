@@ -11,6 +11,12 @@ class ShoppingCategory(str, enum.Enum):
     vegetables_fruits = "vegetables_fruits"
     spices = "spices"
     household = "household"
+    bakery = "bakery"
+    beverages = "beverages"
+    frozen = "frozen"
+    snacks = "snacks"
+    pantry = "pantry"
+    drugstore = "drugstore"
     other = "other"
 
 
@@ -19,8 +25,9 @@ class ShoppingItem(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(500), nullable=False)
+    # native_enum=False stores as VARCHAR — no ALTER TYPE needed when adding new values
     category = Column(
-        Enum(ShoppingCategory, name="shopping_category"),
+        Enum(ShoppingCategory, name="shopping_category", native_enum=False),
         nullable=False,
         default=ShoppingCategory.other,
     )

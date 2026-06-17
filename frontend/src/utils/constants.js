@@ -3,8 +3,19 @@ export const LIST_KEY_TO_API = { work: 'work', priv: 'private', clean: 'cleaning
 export const LIST_API_TO_KEY = { work: 'work', private: 'priv', cleaning: 'clean', shopping: 'shop' }
 export const PRIO_KEY_TO_API = { urgent: 'urgent', high: 'high', med: 'medium', low: 'low' }
 export const PRIO_API_TO_KEY = { urgent: 'urgent', high: 'high', medium: 'med', low: 'low' }
-export const SHOP_KEY_TO_API = { meat: 'meat', dairy: 'dairy', veg: 'vegetables_fruits', spice: 'spices', house: 'household', other: 'other' }
-export const SHOP_API_TO_KEY = { meat: 'meat', dairy: 'dairy', vegetables_fruits: 'veg', spices: 'spice', household: 'house', other: 'other' }
+
+export const SHOP_KEY_TO_API = {
+  meat: 'meat', dairy: 'dairy', veg: 'vegetables_fruits', spice: 'spices',
+  bakery: 'bakery', beverages: 'beverages', frozen: 'frozen',
+  snacks: 'snacks', pantry: 'pantry', drugstore: 'drugstore',
+  house: 'household', other: 'other',
+}
+export const SHOP_API_TO_KEY = {
+  meat: 'meat', dairy: 'dairy', vegetables_fruits: 'veg', spices: 'spice',
+  bakery: 'bakery', beverages: 'beverages', frozen: 'frozen',
+  snacks: 'snacks', pantry: 'pantry', drugstore: 'drugstore',
+  household: 'house', other: 'other',
+}
 
 export const LISTS = [
   { key: 'work',  api: 'work',     label: 'Arbeit',    color: '#3b82f6', cssVar: '--work',  icon: 'Briefcase',  path: '/work' },
@@ -17,12 +28,18 @@ export const PRIO_LABEL = { urgent: 'Kritisch', high: 'Hoch', med: 'Mittel', low
 export const PRIO_ORDER = { urgent: 0, high: 1, med: 2, low: 3 }
 
 export const SHOP_CATS = [
-  { key: 'meat',  api: 'meat',              label: 'Fleisch & Fisch', emoji: '🥩' },
-  { key: 'dairy', api: 'dairy',             label: 'Kühlregal',       emoji: '🥛' },
-  { key: 'veg',   api: 'vegetables_fruits', label: 'Obst & Gemüse',   emoji: '🥦' },
-  { key: 'spice', api: 'spices',            label: 'Gewürze & Co',    emoji: '🧂' },
-  { key: 'house', api: 'household',         label: 'Haushalt',        emoji: '🏠' },
-  { key: 'other', api: 'other',             label: 'Sonstiges',       emoji: '🛒' },
+  { key: 'veg',       api: 'vegetables_fruits', label: 'Obst & Gemüse',   emoji: '🥦' },
+  { key: 'meat',      api: 'meat',              label: 'Fleisch & Fisch', emoji: '🥩' },
+  { key: 'dairy',     api: 'dairy',             label: 'Kühlregal',       emoji: '🥛' },
+  { key: 'bakery',    api: 'bakery',            label: 'Backwaren',       emoji: '🥖' },
+  { key: 'beverages', api: 'beverages',         label: 'Getränke',        emoji: '🥤' },
+  { key: 'frozen',    api: 'frozen',            label: 'Tiefkühl',        emoji: '🧊' },
+  { key: 'snacks',    api: 'snacks',            label: 'Snacks & Süßes',  emoji: '🍫' },
+  { key: 'pantry',    api: 'pantry',            label: 'Vorrat',          emoji: '🍝' },
+  { key: 'spice',     api: 'spices',            label: 'Gewürze & Co',    emoji: '🧂' },
+  { key: 'drugstore', api: 'drugstore',         label: 'Drogerie',        emoji: '💊' },
+  { key: 'house',     api: 'household',         label: 'Haushalt',        emoji: '🏠' },
+  { key: 'other',     api: 'other',             label: 'Sonstiges',       emoji: '📦' },
 ]
 
 export const QUICK_PROMPTS = [

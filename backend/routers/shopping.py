@@ -5,6 +5,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
+from models.price_memory import PriceMemory
 from models.shopping import ShoppingCategory, ShoppingItem
 from schemas.shopping import (
     ShoppingItemCreate,
@@ -15,6 +16,31 @@ from schemas.shopping import (
 from services.auto_categorize import auto_categorize
 
 router = APIRouter(prefix="/shopping-items", tags=["shopping"])
+
+
+def _normalize(name: str) -> str:
+    return ' '.join(name.lower().strip().split())
+
+
+async def _recall_price(db: AsyncSession, name: str) -> Optional[float]:
+    result = await db.execute(
+        select(PriceMemory).where(PriceMemory.name_normalized == _normalize(name))
+    )
+    mem = result.scalar_one_or_none()
+    return mem.price if mem else None
+
+
+async def _remember_price(db: AsyncSession, name: str, price: float) -> None:
+    norm = _normalize(name)
+    result = await db.execute(
+        select(PriceMemory).where(PriceMemory.name_normalized == norm)
+    )
+    mem = result.scalar_one_or_none()
+    if mem:
+        mem.price = price
+    else:
+        db.add(PriceMemory(name_normalized=norm, price=price))
+    await db.commit()
 
 
 @router.get("", response_model=List[ShoppingItemResponse])
@@ -49,10 +75,16 @@ async def get_shopping_total(db: AsyncSession = Depends(get_db)):
 async def create_shopping_item(data: ShoppingItemCreate, db: AsyncSession = Depends(get_db)):
     auto_cat = data.category is None
     category = data.category if not auto_cat else auto_categorize(data.name)
+
+    # Auto-fill price from memory when none provided
+    price = data.estimated_price
+    if price is None:
+        price = await _recall_price(db, data.name)
+
     item = ShoppingItem(
         name=data.name,
         category=category,
-        estimated_price=data.estimated_price,
+        estimated_price=price,
         auto_categorized=auto_cat,
     )
     db.add(item)
@@ -77,6 +109,11 @@ async def update_shopping_item(
         item.category = auto_categorize(item.name)
     await db.commit()
     await db.refresh(item)
+
+    # Persist price to memory when explicitly set
+    if "estimated_price" in update_data and update_data["estimated_price"] is not None:
+        await _remember_price(db, item.name, update_data["estimated_price"])
+
     return item
 
 

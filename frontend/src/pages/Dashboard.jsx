@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTasks } from '../context/TasksContext'
+import { useShopping } from '../context/ShoppingContext'
 import { LISTS, PRIO_ORDER, PRIO_API_TO_KEY } from '../utils/constants'
 import TaskCard from '../components/TaskCard/TaskCard'
 import TaskForm from '../components/TaskForm/TaskForm'
@@ -8,6 +9,7 @@ import Icon from '../components/Icon'
 
 export default function Dashboard() {
   const { tasks, loading } = useTasks()
+  const { items: shoppingItems } = useShopping()
   const [addingTask, setAddingTask] = useState(false)
   const navigate = useNavigate()
 
@@ -66,8 +68,13 @@ export default function Dashboard() {
 
       <div className="stat-grid">
         {LISTS.map(list => {
-          const open = countOpen(list.api)
-          const done = countDone(list.api)
+          const isShopping = list.api === 'shopping'
+          const open = isShopping
+            ? shoppingItems.filter(i => !i.is_completed).length
+            : countOpen(list.api)
+          const done = isShopping
+            ? shoppingItems.filter(i => i.is_completed).length
+            : countDone(list.api)
           const total = open + done
           const pct = total > 0 ? Math.round((done / total) * 100) : 0
           return (

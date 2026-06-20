@@ -14,7 +14,7 @@ import Icon from './components/Icon'
 
 const MOBILE_TABS = [
   { to: '/',         icon: 'LayoutDashboard', label: 'Start' },
-  { to: '/private',  icon: 'User',            label: 'Privat',  color: '#8b5cf6' },
+  { to: '/private',  icon: 'User',            label: 'Aufgaben', color: '#8b5cf6' },
   null, // FAB placeholder
   { to: '/shopping', icon: 'ShoppingCart',    label: 'Einkauf', color: '#f97316' },
   { to: '/chat',     icon: 'MessageSquare',   label: 'Claude' },

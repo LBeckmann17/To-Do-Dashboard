@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTasks } from '../context/TasksContext'
 import { useShopping } from '../context/ShoppingContext'
+import { useCleaning } from '../context/CleaningContext'
 import { LISTS, PRIO_ORDER, PRIO_API_TO_KEY } from '../utils/constants'
 import TaskCard from '../components/TaskCard/TaskCard'
 import TaskForm from '../components/TaskForm/TaskForm'
@@ -10,6 +11,7 @@ import Icon from '../components/Icon'
 export default function Dashboard() {
   const { tasks, loading } = useTasks()
   const { items: shoppingItems } = useShopping()
+  const { tasks: cleaningTasks } = useCleaning()
   const [addingTask, setAddingTask] = useState(false)
   const navigate = useNavigate()
 
@@ -69,14 +71,25 @@ export default function Dashboard() {
       <div className="stat-grid">
         {LISTS.map(list => {
           const isShopping = list.api === 'shopping'
-          const open = isShopping
-            ? shoppingItems.filter(i => !i.is_completed).length
-            : countOpen(list.api)
-          const done = isShopping
-            ? shoppingItems.filter(i => i.is_completed).length
-            : countDone(list.api)
-          const total = open + done
-          const pct = total > 0 ? Math.round((done / total) * 100) : 0
+          const isCleaning = list.api === 'cleaning'
+          let open, done, total, pct
+          if (isShopping) {
+            open  = shoppingItems.filter(i => !i.is_completed).length
+            done  = shoppingItems.filter(i => i.is_completed).length
+            total = open + done
+            pct   = total > 0 ? Math.round((done / total) * 100) : 0
+          } else if (isCleaning) {
+            const now = Date.now()
+            open  = cleaningTasks.filter(t => !t.next_due_at || new Date(t.next_due_at) <= now).length
+            done  = cleaningTasks.filter(t => t.next_due_at && new Date(t.next_due_at) > now).length
+            total = cleaningTasks.length
+            pct   = total > 0 ? Math.round((done / total) * 100) : 0
+          } else {
+            open  = countOpen(list.api)
+            done  = countDone(list.api)
+            total = open + done
+            pct   = total > 0 ? Math.round((done / total) * 100) : 0
+          }
           return (
             <div key={list.key} className="stat-card" onClick={() => navigate(list.path)}>
               <div className="stat-top">

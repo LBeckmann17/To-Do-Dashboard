@@ -18,7 +18,6 @@ export const SHOP_API_TO_KEY = {
 }
 
 export const LISTS = [
-  { key: 'work',  api: 'work',     label: 'Arbeit',    color: '#3b82f6', cssVar: '--work',  icon: 'Briefcase',  path: '/work' },
   { key: 'priv',  api: 'private',  label: 'Privat',    color: '#8b5cf6', cssVar: '--priv',  icon: 'User',       path: '/private' },
   { key: 'clean', api: 'cleaning', label: 'Putzen',    color: '#10b981', cssVar: '--clean', icon: 'Sparkles',   path: '/cleaning' },
   { key: 'shop',  api: 'shopping', label: 'Einkauf',   color: '#f97316', cssVar: '--shop',  icon: 'ShoppingCart', path: '/shopping' },

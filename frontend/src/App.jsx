@@ -4,7 +4,6 @@ import Sidebar from './components/Sidebar/Sidebar'
 import Header from './components/Header/Header'
 import ClaudePanel from './components/ClaudePanel/ClaudePanel'
 import Dashboard from './pages/Dashboard'
-import WorkList from './pages/WorkList'
 import PrivateList from './pages/PrivateList'
 import CleaningPlan from './pages/CleaningPlan'
 import ShoppingList from './pages/ShoppingList'
@@ -44,7 +43,6 @@ export default function App() {
         <div className="content">
           <Routes>
             <Route path="/"         element={<Dashboard />} />
-            <Route path="/work"     element={<WorkList />} />
             <Route path="/private"  element={<PrivateList />} />
             <Route path="/cleaning" element={<CleaningPlan />} />
             <Route path="/shopping" element={<ShoppingList />} />

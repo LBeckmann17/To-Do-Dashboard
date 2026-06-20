@@ -43,7 +43,7 @@ export default function TaskListPage({ list }) {
 
   const sorted = [...filtered].sort((a, b) => {
     if (sort === 'priority') {
-      return (PRIO_ORDER[PRIO_API_TO_KEY[a.priority]] || 3) - (PRIO_ORDER[PRIO_API_TO_KEY[b.priority]] || 3)
+      return (PRIO_ORDER[PRIO_API_TO_KEY[a.priority]] ?? 3) - (PRIO_ORDER[PRIO_API_TO_KEY[b.priority]] ?? 3)
     }
     if (sort === 'deadline') {
       if (!a.deadline) return 1
